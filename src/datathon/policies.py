@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import json
+import os
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Protocol
@@ -128,24 +130,50 @@ class ThompsonSamplingPolicy:
 
         return json.loads(json.dumps(self._state))
 
-    def save(self, path: Path) -> None:
-        """Salva estado e metadados para a API local."""
+    def to_payload(self) -> dict[str, object]:
+        """Representa o estado completo em um payload serializável."""
 
-        path.parent.mkdir(parents=True, exist_ok=True)
-        payload = {
+        return {
             "version": self.version,
             "seed": self.seed,
             "prior_alpha": self.prior_alpha,
             "prior_beta": self.prior_beta,
             "posterior": self.posterior(),
         }
-        path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    def to_json(self) -> str:
+        """Serializa o estado usado pelo arquivo e pelo SQLite."""
+
+        return json.dumps(self.to_payload(), ensure_ascii=False, indent=2)
+
+    def save(self, path: Path) -> None:
+        """Salva estado e metadados para a API local."""
+
+        path.parent.mkdir(parents=True, exist_ok=True)
+        descriptor, temporary_name = tempfile.mkstemp(
+            prefix=f".{path.name}.", suffix=".tmp", dir=path.parent
+        )
+        temporary_path = Path(temporary_name)
+        try:
+            with os.fdopen(descriptor, "w", encoding="utf-8") as file:
+                file.write(self.to_json())
+                file.flush()
+                os.fsync(file.fileno())
+            os.replace(temporary_path, path)
+        finally:
+            temporary_path.unlink(missing_ok=True)
 
     @classmethod
     def load(cls, path: Path) -> "ThompsonSamplingPolicy":
         """Reidrata uma política salva em disco."""
 
-        payload = json.loads(path.read_text(encoding="utf-8"))
+        return cls.from_json(path.read_text(encoding="utf-8"))
+
+    @classmethod
+    def from_json(cls, content: str) -> "ThompsonSamplingPolicy":
+        """Reidrata uma política armazenada como JSON."""
+
+        payload = json.loads(content)
         policy = cls(
             seed=int(payload["seed"]),
             prior_alpha=float(payload["prior_alpha"]),
@@ -179,13 +207,12 @@ class ThompsonSamplingPolicy:
         return rows
 
 
-def build_policy_from_snapshot(path: Path, mode: str = "mutable") -> ThompsonSamplingPolicy:
-    """Carrega snapshot ou inicia um prior limpo, respeitando o modo."""
+def load_trained_policy(state_path: Path, snapshot_path: Path) -> ThompsonSamplingPolicy:
+    """Carrega o estado operacional ou o snapshot treinado, sem prior implícito."""
 
-    if path.exists():
-        return ThompsonSamplingPolicy.load(path)
-    policy = ThompsonSamplingPolicy()
-    if mode == "readonly":
-        return policy
-    policy.save(path)
-    return policy
+    source = state_path if state_path.exists() else snapshot_path
+    if not source.exists():
+        raise FileNotFoundError(
+            f"Nenhum estado treinado foi encontrado em {state_path} ou {snapshot_path}."
+        )
+    return ThompsonSamplingPolicy.load(source)

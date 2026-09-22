@@ -5,10 +5,11 @@ services:
       APP_ENV: local
       POLICY_MODE: mutable
       STATE_PATH: /app/state/policy.json
+      SNAPSHOT_PATH: /app/config/policy_snapshot.json
       DATABASE_PATH: /app/state/decisions.db
       MLFLOW_TRACKING_URI: http://mlflow:5000
     ports:
-      - "8080:8080"
+      - "${API_PORT:-8080}:8080"
     volumes:
       - api_state:/app/state
     depends_on:
@@ -26,30 +27,65 @@ services:
     command: >-
       mlflow server --host 0.0.0.0 --port 5000
       --backend-store-uri sqlite:///mlruns/mlflow.db
-      --default-artifact-root /mlruns/artifacts
-      --allowed-hosts '*'
+      --artifacts-destination /mlruns/artifacts
+      --allowed-hosts 'mlflow,mlflow:*,localhost,localhost:*,127.0.0.1,127.0.0.1:*'
     ports:
-      - "5000:5000"
+      - "${MLFLOW_PORT:-5000}:5000"
     volumes:
       - mlflow_data:/mlruns
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "from urllib.request import urlopen; urlopen('http://127.0.0.1:5000/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  tracker:
+    build: .
+    command: >-
+      python scripts/track_mlflow.py
+      --summary artifacts/experiment_summary.json
+      --tracking-uri http://mlflow:5000
+    environment:
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      MLFLOW_DISABLE_AGENT_HINT: "1"
+      GIT_PYTHON_REFRESH: quiet
+    depends_on:
+      mlflow:
+        condition: service_healthy
+    restart: "no"
+    healthcheck:
+      disable: true
 
   prometheus:
     image: prom/prometheus:v2.55.1
     profiles: ["monitoring"]
     ports:
-      - "9090:9090"
+      - "${PROMETHEUS_PORT:-9090}:9090"
     volumes:
       - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:9090/-/healthy"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
 
   grafana:
     image: grafana/grafana:11.3.1
     profiles: ["monitoring"]
     ports:
-      - "3000:3000"
+      - "${GRAFANA_PORT:-3000}:3000"
     volumes:
       - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      prometheus:
+        condition: service_healthy
 
 volumes:
   api_state:

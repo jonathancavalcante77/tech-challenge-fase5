@@ -1,0 +1,122 @@
+[
+  {
+    "case_id": "recent_mens_web",
+    "context": {
+      "recency": 2,
+      "history": 420.0,
+      "mens": 1,
+      "womens": 0,
+      "newbie": 0,
+      "zip_code": "Urban",
+      "channel": "Web"
+    },
+    "segment": "recent:mens",
+    "recommended_action": "mens_email",
+    "recommended_label": "Campanha masculina",
+    "exploitation_action": "mens_email",
+    "exploration": false,
+    "posterior_means": {
+      "mens_email": 0.013930348258706468,
+      "womens_email": 0.0078003120124804995,
+      "no_email": 0.010582010582010581
+    },
+    "decision_makes_sense": true,
+    "rationale": "A decisão é coerente como aproveitamento: a ação escolhida também possui a maior média posterior neste segmento. A evidência vem do experimento randomizado do benchmark e não substitui validação própria ou revisão humana em um produto financeiro."
+  },
+  {
+    "case_id": "recent_womens_multichannel",
+    "context": {
+      "recency": 3,
+      "history": 610.0,
+      "mens": 0,
+      "womens": 1,
+      "newbie": 0,
+      "zip_code": "Surburban",
+      "channel": "Multichannel"
+    },
+    "segment": "recent:womens",
+    "recommended_action": "mens_email",
+    "recommended_label": "Campanha masculina",
+    "exploitation_action": "mens_email",
+    "exploration": false,
+    "posterior_means": {
+      "mens_email": 0.013123359580052493,
+      "womens_email": 0.013118062563067608,
+      "no_email": 0.0099113197704747
+    },
+    "decision_makes_sense": true,
+    "rationale": "A decisão é coerente como aproveitamento: a ação escolhida também possui a maior média posterior neste segmento. A evidência vem do experimento randomizado do benchmark e não substitui validação própria ou revisão humana em um produto financeiro."
+  },
+  {
+    "case_id": "middle_mixed_web",
+    "context": {
+      "recency": 5,
+      "history": 780.0,
+      "mens": 1,
+      "womens": 1,
+      "newbie": 0,
+      "zip_code": "Urban",
+      "channel": "Web"
+    },
+    "segment": "middle:mixed",
+    "recommended_action": "mens_email",
+    "recommended_label": "Campanha masculina",
+    "exploitation_action": "mens_email",
+    "exploration": false,
+    "posterior_means": {
+      "mens_email": 0.031746031746031744,
+      "womens_email": 0.01048951048951049,
+      "no_email": 0.006688963210702341
+    },
+    "decision_makes_sense": true,
+    "rationale": "A decisão é coerente como aproveitamento: a ação escolhida também possui a maior média posterior neste segmento. A evidência vem do experimento randomizado do benchmark e não substitui validação própria ou revisão humana em um produto financeiro."
+  },
+  {
+    "case_id": "old_mens_phone",
+    "context": {
+      "recency": 9,
+      "history": 260.0,
+      "mens": 1,
+      "womens": 0,
+      "newbie": 1,
+      "zip_code": "Rural",
+      "channel": "Phone"
+    },
+    "segment": "old:mens",
+    "recommended_action": "mens_email",
+    "recommended_label": "Campanha masculina",
+    "exploitation_action": "mens_email",
+    "exploration": false,
+    "posterior_means": {
+      "mens_email": 0.00971266693646297,
+      "womens_email": 0.004761904761904762,
+      "no_email": 0.004286827747466875
+    },
+    "decision_makes_sense": true,
+    "rationale": "A decisão é coerente como aproveitamento: a ação escolhida também possui a maior média posterior neste segmento. A evidência vem do experimento randomizado do benchmark e não substitui validação própria ou revisão humana em um produto financeiro."
+  },
+  {
+    "case_id": "old_womens_web",
+    "context": {
+      "recency": 11,
+      "history": 330.0,
+      "mens": 0,
+      "womens": 1,
+      "newbie": 1,
+      "zip_code": "Urban",
+      "channel": "Web"
+    },
+    "segment": "old:womens",
+    "recommended_action": "mens_email",
+    "recommended_label": "Campanha masculina",
+    "exploitation_action": "mens_email",
+    "exploration": false,
+    "posterior_means": {
+      "mens_email": 0.011755485893416929,
+      "womens_email": 0.00842911877394636,
+      "no_email": 0.0020008003201280513
+    },
+    "decision_makes_sense": true,
+    "rationale": "A decisão é coerente como aproveitamento: a ação escolhida também possui a maior média posterior neste segmento. A evidência vem do experimento randomizado do benchmark e não substitui validação própria ou revisão humana em um produto financeiro."
+  }
+]

@@ -23,20 +23,34 @@ class ReplayResult:
     exploration_rate: float
     cumulative_values: list[float]
     action_counts: dict[str, int]
+    standard_error: float
+    ci_lower: float
+    ci_upper: float
 
 
-def sequential_replay(frame: pd.DataFrame, policy: Policy, seed: int = 2026) -> ReplayResult:
+def _confidence_interval(contributions: list[float]) -> tuple[float, float, float]:
+    """Calcula erro padrão e intervalo normal de 95% para contribuições IPS."""
+
+    if len(contributions) < 2:
+        return 0.0, 0.0, 1.0
+    values = np.asarray(contributions, dtype=float)
+    standard_error = float(values.std(ddof=1) / np.sqrt(len(values)))
+    estimate = float(values.mean())
+    margin = 1.96 * standard_error
+    return standard_error, max(0.0, estimate - margin), min(1.0, estimate + margin)
+
+
+def sequential_replay(frame: pd.DataFrame, policy: Policy) -> ReplayResult:
     """Executa replay: só atualiza a política quando a ação foi observada."""
 
     required = {"action", "conversion"}
     if not required.issubset(frame.columns):
         raise ValueError(f"Colunas de replay ausentes: {sorted(required - set(frame.columns))}")
-    rng = np.random.default_rng(seed)
-    del rng  # A aleatoriedade da política é encapsulada nela e tem seed próprio.
     matched = 0
     weighted_reward = 0.0
     explorations = 0
     cumulative: list[float] = []
+    contributions: list[float] = []
     counts = {key: 0 for key in ACTION_KEYS}
     for row in frame.itertuples(index=False):
         values = row._asdict()
@@ -44,12 +58,16 @@ def sequential_replay(frame: pd.DataFrame, policy: Policy, seed: int = 2026) -> 
         decision = policy.recommend(context)
         counts[decision.action] += 1
         explorations += int(decision.exploration)
+        contribution = 0.0
         if decision.action == values["action"]:
             matched += 1
-            weighted_reward += len(ACTION_KEYS) * float(values["conversion"])
+            contribution = len(ACTION_KEYS) * float(values["conversion"])
+            weighted_reward += contribution
             policy.update(context, decision.action, int(values["conversion"]))
+        contributions.append(contribution)
         cumulative.append(weighted_reward / max(len(cumulative) + 1, 1))
     total = len(frame)
+    standard_error, ci_lower, ci_upper = _confidence_interval(contributions)
     return ReplayResult(
         estimated_value=weighted_reward / max(total, 1),
         matched_rows=matched,
@@ -57,6 +75,9 @@ def sequential_replay(frame: pd.DataFrame, policy: Policy, seed: int = 2026) -> 
         exploration_rate=explorations / max(total, 1),
         cumulative_values=cumulative,
         action_counts=counts,
+        standard_error=standard_error,
+        ci_lower=ci_lower,
+        ci_upper=ci_upper,
     )
 
 
@@ -67,6 +88,18 @@ def fixed_policy_value(frame: pd.DataFrame, action: str) -> float:
         raise ValueError(f"Ação desconhecida: {action}")
     matched = frame.loc[frame["action"] == action, "conversion"]
     return float(len(ACTION_KEYS) * matched.sum() / max(len(frame), 1))
+
+
+def fixed_policy_interval(frame: pd.DataFrame, action: str) -> tuple[float, float, float]:
+    """Retorna erro padrão e intervalo de 95% da regra fixa por IPS."""
+
+    if action not in ACTION_KEYS:
+        raise ValueError(f"Ação desconhecida: {action}")
+    contributions = [
+        len(ACTION_KEYS) * float(row.conversion) if row.action == action else 0.0
+        for row in frame.itertuples(index=False)
+    ]
+    return _confidence_interval(contributions)
 
 
 def policy_value(

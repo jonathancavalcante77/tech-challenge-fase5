@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 import hashlib
+import json
+import os
+import tempfile
 from pathlib import Path
 from urllib.request import urlretrieve
 
@@ -14,6 +17,7 @@ DATASET_URL = (
     "http://www.minethatdata.com/"
     "Kevin_Hillstrom_MineThatData_E-MailAnalytics_DataMiningChallenge_2008.03.20.csv"
 )
+SOURCE_MANIFEST = Path(__file__).resolve().parents[2] / "data" / "source.json"
 REQUIRED_COLUMNS = {
     "recency",
     "history_segment",
@@ -30,12 +34,40 @@ REQUIRED_COLUMNS = {
 }
 
 
-def download_dataset(path: Path) -> Path:
-    """Baixa a cópia pública do dataset quando ela ainda não existe."""
+def source_manifest(path: Path = SOURCE_MANIFEST) -> dict[str, object]:
+    """Carrega a referência versionada da fonte pública."""
+
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def download_dataset(path: Path, expected_sha256: str | None = None) -> Path:
+    """Baixa a base por arquivo temporário e valida sua integridade."""
 
     path.parent.mkdir(parents=True, exist_ok=True)
-    if not path.exists():
-        urlretrieve(DATASET_URL, path)
+    expected = expected_sha256 or str(source_manifest()["sha256"])
+    if path.exists():
+        actual = sha256(path)
+        if actual != expected:
+            raise ValueError(
+                f"Checksum inválido para {path}: esperado {expected}, obtido {actual}."
+            )
+        return path
+
+    descriptor, temporary_name = tempfile.mkstemp(
+        prefix=f".{path.name}.", suffix=".download", dir=path.parent
+    )
+    os.close(descriptor)
+    temporary_path = Path(temporary_name)
+    try:
+        urlretrieve(DATASET_URL, temporary_path)
+        actual = sha256(temporary_path)
+        if actual != expected:
+            raise ValueError(
+                f"Checksum inválido no download: esperado {expected}, obtido {actual}."
+            )
+        os.replace(temporary_path, path)
+    finally:
+        temporary_path.unlink(missing_ok=True)
     return path
 
 
@@ -75,7 +107,9 @@ def clean_data(frame: pd.DataFrame) -> pd.DataFrame:
     if (clean["conversion"] > clean["visit"]).any():
         raise ValueError("conversion não pode ocorrer sem visit.")
     clean["action"] = clean["segment"].map(DATASET_TO_ACTION)
-    clean["action_index"] = clean["action"].map({key: i for i, key in enumerate(DATASET_TO_ACTION.values())})
+    clean["action_index"] = clean["action"].map(
+        {key: i for i, key in enumerate(DATASET_TO_ACTION.values())}
+    )
     return clean
 
 
@@ -102,5 +136,11 @@ def stratified_split(
         shuffled = group.sample(frac=1, random_state=seed).reset_index(drop=True)
         train_end = int(len(shuffled) * train_fraction)
         validation_end = train_end + int(len(shuffled) * validation_fraction)
-        pieces.append((shuffled.iloc[:train_end], shuffled.iloc[train_end:validation_end], shuffled.iloc[validation_end:]))
+        pieces.append(
+            (
+                shuffled.iloc[:train_end],
+                shuffled.iloc[train_end:validation_end],
+                shuffled.iloc[validation_end:],
+            )
+        )
     return tuple(pd.concat(parts, ignore_index=True) for parts in zip(*pieces, strict=True))  # type: ignore[return-value]

@@ -1,0 +1,48 @@
+{
+  "dataset_sha256": "0e5893329d8b93cefecc571777672028290ab69865718020c78c7284f291aece",
+  "seed": 2026,
+  "rows": {
+    "total": 64000,
+    "train": 38399,
+    "validation": 12799,
+    "test": 12802
+  },
+  "baseline_action": "no_email",
+  "baseline_value_ips": 0.007030151538822059,
+  "baseline_standard_error": 0.0012820694904756575,
+  "baseline_ci95": [
+    0.00451729533748977,
+    0.009543007740154348
+  ],
+  "best_fixed_action": "mens_email",
+  "best_fixed_value_ips": 0.014763318231526323,
+  "best_fixed_standard_error": 0.0018554934542758508,
+  "best_fixed_ci95": [
+    0.011126551061145656,
+    0.01840008540190699
+  ],
+  "validation_baseline_value_ips": 0.005859832799437456,
+  "validation_thompson_value_ips": 0.008672552543167435,
+  "validation_thompson_matched_rows": 4275,
+  "selected_policy": "thompson_sampling",
+  "selected_policy_value_ips": 0.013825964693016717,
+  "selected_lift_vs_baseline": 0.006795813154194657,
+  "selected_lift_vs_best_fixed": -0.0009373535385096068,
+  "thompson_replay_value_ips": 0.013825964693016717,
+  "thompson_replay_standard_error": 0.0017959048795328182,
+  "thompson_replay_ci95": [
+    0.010305991129132393,
+    0.01734593825690104
+  ],
+  "thompson_frozen_value_ips": 0.014997656616153727,
+  "thompson_replay_matched_rows": 4242,
+  "thompson_frozen_matched_rows": 4300,
+  "thompson_exploration_rate": 0.18473675988126856,
+  "lift_replay": 0.006795813154194657,
+  "lift_replay_vs_best_fixed": -0.0009373535385096068,
+  "action_counts": {
+    "mens_email": 9810,
+    "womens_email": 2564,
+    "no_email": 428
+  }
+}

@@ -2,13 +2,20 @@
 
 from __future__ import annotations
 
-import os
-from pathlib import Path
+import time
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from prometheus_client import (
+    CONTENT_TYPE_LATEST,
+    CollectorRegistry,
+    Counter,
+    Gauge,
+    Histogram,
+    generate_latest,
+)
 from pydantic import BaseModel, ConfigDict, Field
 
 from datathon.catalog import catalog_payload
@@ -42,16 +49,14 @@ class FeedbackRequest(BaseModel):
 def create_app() -> FastAPI:
     """Cria uma instância isolada para a aplicação e para os testes."""
 
-    configured = Settings(
-        data_path=Path(os.getenv("DATA_PATH", "data/raw/hillstrom.csv")),
-        state_path=Path(os.getenv("STATE_PATH", "state/policy.json")),
-        database_path=Path(os.getenv("DATABASE_PATH", "state/decisions.db")),
-        policy_mode=os.getenv("POLICY_MODE", "mutable"),
-        app_env=os.getenv("APP_ENV", "local"),
-        mlflow_tracking_uri=os.getenv("MLFLOW_TRACKING_URI", "sqlite:///mlruns/mlflow.db"),
-    )
+    configured = Settings.from_env()
     configured.ensure_directories()
-    service = RecommendationService(configured.state_path, configured.database_path, configured.policy_mode)
+    service = RecommendationService(
+        configured.state_path,
+        configured.snapshot_path,
+        configured.database_path,
+        configured.policy_mode,
+    )
     application = FastAPI(
         title="Adaptive Offers Lab",
         description="Demonstração reproduzível de experimentação adaptativa.",
@@ -60,10 +65,53 @@ def create_app() -> FastAPI:
     templates = Jinja2Templates(directory="app/templates")
     application.mount("/static", StaticFiles(directory="app/static"), name="static")
     application.state.service = service
+    registry = CollectorRegistry()
+    request_count = Counter(
+        "adaptive_offers_http_requests_total",
+        "Requisições HTTP processadas.",
+        ["method", "path", "status"],
+        registry=registry,
+    )
+    request_latency = Histogram(
+        "adaptive_offers_http_request_duration_seconds",
+        "Latência HTTP em segundos.",
+        ["method", "path"],
+        registry=registry,
+    )
+    decisions = Counter(
+        "adaptive_offers_recommendations_total",
+        "Recomendações emitidas pela política.",
+        ["action", "exploration"],
+        registry=registry,
+    )
+    feedbacks = Counter(
+        "adaptive_offers_feedback_events_total",
+        "Feedbacks recebidos pelo serviço.",
+        ["reward", "status"],
+        registry=registry,
+    )
+    posterior_segments = Gauge(
+        "adaptive_offers_policy_segments",
+        "Segmentos presentes no estado Bayesiano.",
+        registry=registry,
+    )
+    posterior_segments.set(len(service.policy.posterior()))
+
+    @application.middleware("http")
+    async def observe_http(request: Request, call_next):
+        started_at = time.perf_counter()
+        response = await call_next(request)
+        route = request.scope.get("route")
+        path = getattr(route, "path", "unmatched")
+        request_count.labels(request.method, path, str(response.status_code)).inc()
+        request_latency.labels(request.method, path).observe(time.perf_counter() - started_at)
+        return response
 
     @application.get("/", response_class=HTMLResponse, include_in_schema=False)
     async def home(request: Request) -> HTMLResponse:
-        return templates.TemplateResponse(request=request, name="index.html", context={"catalog": catalog_payload()})
+        return templates.TemplateResponse(
+            request=request, name="index.html", context={"catalog": catalog_payload()}
+        )
 
     @application.get("/health")
     async def health() -> dict[str, str]:
@@ -75,12 +123,17 @@ def create_app() -> FastAPI:
 
     @application.post("/recommend")
     async def recommend(payload: ContextRequest) -> dict[str, object]:
-        return service.recommend(payload.model_dump())
+        result = service.recommend(payload.model_dump())
+        decisions.labels(str(result["action"]), str(bool(result["exploration"])).lower()).inc()
+        posterior_segments.set(len(service.policy.posterior()))
+        return result
 
     @application.post("/feedback")
     async def feedback(payload: FeedbackRequest) -> dict[str, object]:
         try:
-            return service.feedback(payload.decision_id, payload.reward)
+            result = service.feedback(payload.decision_id, payload.reward)
+            feedbacks.labels(str(payload.reward), str(result["status"])).inc()
+            return result
         except PermissionError as error:
             raise HTTPException(status_code=403, detail=str(error)) from error
         except KeyError as error:
@@ -89,16 +142,8 @@ def create_app() -> FastAPI:
             raise HTTPException(status_code=409, detail=str(error)) from error
 
     @application.get("/metrics", response_class=PlainTextResponse)
-    async def metrics() -> str:
-        stats = service.metadata()["store"]
-        return (
-            "# HELP adaptive_offers_decisions_total Decisões persistidas localmente.\n"
-            "# TYPE adaptive_offers_decisions_total counter\n"
-            f"adaptive_offers_decisions_total {stats['decisions']}\n"
-            "# HELP adaptive_offers_feedback_total Feedbacks persistidos localmente.\n"
-            "# TYPE adaptive_offers_feedback_total counter\n"
-            f"adaptive_offers_feedback_total {stats['feedbacks']}\n"
-        )
+    async def metrics() -> PlainTextResponse:
+        return PlainTextResponse(generate_latest(registry), media_type=CONTENT_TYPE_LATEST)
 
     return application
 

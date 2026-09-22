@@ -13,6 +13,8 @@ RUN pip install --no-cache-dir --upgrade pip \
 COPY src ./src
 COPY app ./app
 COPY config ./config
+COPY scripts ./scripts
+COPY artifacts ./artifacts
 
 RUN useradd --create-home --uid 10001 appuser \
     && mkdir -p /app/state /app/logs \

@@ -26,7 +26,7 @@ $deployArgs = @(
     "--region", $Region,
     "--image", $image,
     "--port", "8080",
-    "--set-env-vars", "APP_ENV=cloud-run,POLICY_MODE=readonly,STATE_PATH=/app/config/policy_snapshot.json,DATABASE_PATH=/tmp/readonly.db",
+    "--set-env-vars", "APP_ENV=cloud-run,POLICY_MODE=readonly,STATE_PATH=/tmp/policy.json,SNAPSHOT_PATH=/app/config/policy_snapshot.json,DATABASE_PATH=/tmp/readonly.db",
     "--min", "0",
     "--max", "1",
     "--concurrency", "4",

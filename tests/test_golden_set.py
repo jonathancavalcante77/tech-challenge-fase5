@@ -1,18 +1,17 @@
-from datathon.features import context_from_mapping
-from datathon.policies import ThompsonSamplingPolicy
+from pathlib import Path
 
-GOLDEN_SET = [
-    {"recency": 2, "history": 90, "mens": 0, "womens": 0, "newbie": 1, "zip_code": "Urban", "channel": "Web"},
-    {"recency": 3, "history": 900, "mens": 1, "womens": 1, "newbie": 0, "zip_code": "Rural", "channel": "Multichannel"},
-    {"recency": 8, "history": 250, "mens": 1, "womens": 0, "newbie": 0, "zip_code": "Surburban", "channel": "Phone"},
-    {"recency": 5, "history": 180, "mens": 0, "womens": 1, "newbie": 1, "zip_code": "Urban", "channel": "Web"},
-    {"recency": 11, "history": 1200, "mens": 1, "womens": 0, "newbie": 0, "zip_code": "Rural", "channel": "Phone"},
-]
+from scripts.build_golden_set import build
+
+from datathon.golden import GOLDEN_SET
 
 
-def test_golden_set_has_five_valid_recommendations():
-    policy = ThompsonSamplingPolicy(seed=2026)
-    decisions = [policy.recommend(context_from_mapping(item)) for item in GOLDEN_SET]
-    assert len(decisions) == 5
-    assert all(decision.action for decision in decisions)
-    assert all(decision.segment for decision in decisions)
+def test_golden_set_has_five_explained_recommendations():
+    rows = build(Path("config/policy_snapshot.json"))
+
+    assert len(GOLDEN_SET) == len(rows) == 5
+    assert len({row["case_id"] for row in rows}) == 5
+    assert all(row["recommended_action"] for row in rows)
+    assert all(row["segment"] for row in rows)
+    assert all(row["decision_makes_sense"] is True for row in rows)
+    assert all(len(str(row["rationale"])) > 100 for row in rows)
+    assert all(row["posterior_means"] for row in rows)

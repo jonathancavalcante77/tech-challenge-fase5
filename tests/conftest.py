@@ -3,6 +3,8 @@ from __future__ import annotations
 import pandas as pd
 import pytest
 
+from datathon.policies import ThompsonSamplingPolicy
+
 
 @pytest.fixture
 def context() -> dict[str, object]:
@@ -18,12 +20,62 @@ def context() -> dict[str, object]:
 
 
 @pytest.fixture
+def snapshot_path(tmp_path, context):
+    path = tmp_path / "snapshot.json"
+    policy = ThompsonSamplingPolicy(seed=2026, version="test-snapshot")
+    policy.update(context, "mens_email", 1)
+    policy.update(context, "no_email", 0)
+    policy.save(path)
+    return path
+
+
+@pytest.fixture
 def logged_frame() -> pd.DataFrame:
     return pd.DataFrame(
         [
-            {"recency": 2, "history": 100.0, "mens": 1, "womens": 0, "newbie": 0, "zip_code": "Urban", "channel": "Web", "action": "mens_email", "conversion": 1},
-            {"recency": 8, "history": 80.0, "mens": 0, "womens": 1, "newbie": 1, "zip_code": "Rural", "channel": "Phone", "action": "womens_email", "conversion": 1},
-            {"recency": 5, "history": 200.0, "mens": 1, "womens": 1, "newbie": 0, "zip_code": "Surburban", "channel": "Web", "action": "no_email", "conversion": 0},
-            {"recency": 10, "history": 50.0, "mens": 0, "womens": 0, "newbie": 1, "zip_code": "Urban", "channel": "Multichannel", "action": "mens_email", "conversion": 0},
+            {
+                "recency": 2,
+                "history": 100.0,
+                "mens": 1,
+                "womens": 0,
+                "newbie": 0,
+                "zip_code": "Urban",
+                "channel": "Web",
+                "action": "mens_email",
+                "conversion": 1,
+            },
+            {
+                "recency": 8,
+                "history": 80.0,
+                "mens": 0,
+                "womens": 1,
+                "newbie": 1,
+                "zip_code": "Rural",
+                "channel": "Phone",
+                "action": "womens_email",
+                "conversion": 1,
+            },
+            {
+                "recency": 5,
+                "history": 200.0,
+                "mens": 1,
+                "womens": 1,
+                "newbie": 0,
+                "zip_code": "Surburban",
+                "channel": "Web",
+                "action": "no_email",
+                "conversion": 0,
+            },
+            {
+                "recency": 10,
+                "history": 50.0,
+                "mens": 0,
+                "womens": 0,
+                "newbie": 1,
+                "zip_code": "Urban",
+                "channel": "Multichannel",
+                "action": "mens_email",
+                "conversion": 0,
+            },
         ]
     )

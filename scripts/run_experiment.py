@@ -7,7 +7,12 @@ import json
 from pathlib import Path
 
 from datathon.data import load_clean, sha256, stratified_split
-from datathon.evaluation import fixed_policy_value, policy_value, sequential_replay
+from datathon.evaluation import (
+    fixed_policy_interval,
+    fixed_policy_value,
+    policy_value,
+    sequential_replay,
+)
 from datathon.features import FEATURE_COLUMNS
 from datathon.policies import ThompsonSamplingPolicy
 
@@ -35,37 +40,58 @@ def run(data_path: Path, output_path: Path, seed: int) -> dict[str, object]:
     best_fixed_value = fixed_policy_value(test, best_fixed_action)
     bandit = ThompsonSamplingPolicy(seed=seed)
     fit_policy(bandit, train)
-    replay = sequential_replay(test, bandit, seed=seed)
+    replay = sequential_replay(test, bandit)
+
+    validation_bandit = ThompsonSamplingPolicy(seed=seed)
+    fit_policy(validation_bandit, train)
+    validation_baseline = fixed_policy_value(validation, baseline_action)
+    validation_replay = sequential_replay(validation, validation_bandit)
+    selected_policy = (
+        "thompson_sampling"
+        if validation_replay.estimated_value >= validation_baseline
+        else "baseline_no_email"
+    )
 
     frozen = ThompsonSamplingPolicy(seed=seed)
     fit_policy(frozen, train)
-    validation_baseline = fixed_policy_value(validation, baseline_action)
-    validation_ts, validation_matched = policy_value(
-        validation,
-        lambda context: frozen.greedy_action(context),
-    )
-    selected_policy = "thompson_frozen" if validation_ts >= validation_baseline else "baseline_no_email"
     frozen_values, matched = policy_value(
         test,
         lambda context: frozen.greedy_action(context),
     )
-    selected_value = frozen_values if selected_policy == "thompson_frozen" else baseline_value
+    selected_value = (
+        replay.estimated_value if selected_policy == "thompson_sampling" else baseline_value
+    )
+    baseline_se, baseline_ci_lower, baseline_ci_upper = fixed_policy_interval(test, baseline_action)
+    best_fixed_se, best_fixed_ci_lower, best_fixed_ci_upper = fixed_policy_interval(
+        test, best_fixed_action
+    )
     summary = {
         "dataset_sha256": sha256(data_path),
         "seed": seed,
-        "rows": {"total": len(frame), "train": len(train), "test": len(test)},
+        "rows": {
+            "total": len(frame),
+            "train": len(train),
+            "validation": len(validation),
+            "test": len(test),
+        },
         "baseline_action": baseline_action,
         "baseline_value_ips": baseline_value,
+        "baseline_standard_error": baseline_se,
+        "baseline_ci95": [baseline_ci_lower, baseline_ci_upper],
         "best_fixed_action": best_fixed_action,
         "best_fixed_value_ips": best_fixed_value,
+        "best_fixed_standard_error": best_fixed_se,
+        "best_fixed_ci95": [best_fixed_ci_lower, best_fixed_ci_upper],
         "validation_baseline_value_ips": validation_baseline,
-        "validation_thompson_value_ips": validation_ts,
-        "validation_thompson_matched_rows": validation_matched,
+        "validation_thompson_value_ips": validation_replay.estimated_value,
+        "validation_thompson_matched_rows": validation_replay.matched_rows,
         "selected_policy": selected_policy,
         "selected_policy_value_ips": selected_value,
         "selected_lift_vs_baseline": selected_value - baseline_value,
         "selected_lift_vs_best_fixed": selected_value - best_fixed_value,
         "thompson_replay_value_ips": replay.estimated_value,
+        "thompson_replay_standard_error": replay.standard_error,
+        "thompson_replay_ci95": [replay.ci_lower, replay.ci_upper],
         "thompson_frozen_value_ips": frozen_values,
         "thompson_replay_matched_rows": replay.matched_rows,
         "thompson_frozen_matched_rows": matched,

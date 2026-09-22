@@ -23,6 +23,10 @@ logs/*
 !logs/.gitkeep
 artifacts/*
 !artifacts/.gitkeep
+!artifacts/experiment_summary.json
+!artifacts/golden_set.json
+!artifacts/figures/
+!artifacts/figures/*.png
 mlruns/
 mlartifacts/
 *.db
@@ -47,3 +51,6 @@ monitoring/grafana/data/
 !README.pdf
 Documentação oficial/
 tmp/
+
+# Additional course material
+aula-datathon/
