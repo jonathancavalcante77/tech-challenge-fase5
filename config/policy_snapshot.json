@@ -1,0 +1,134 @@
+{
+  "version": "ts-contextual-v1-snapshot",
+  "seed": 2026,
+  "prior_alpha": 1.0,
+  "prior_beta": 1.0,
+  "posterior": {
+    "recent:mens": {
+      "mens_email": [
+        28.0,
+        1982.0
+      ],
+      "womens_email": [
+        15.0,
+        1908.0
+      ],
+      "no_email": [
+        20.0,
+        1870.0
+      ]
+    },
+    "old:womens": {
+      "mens_email": [
+        30.0,
+        2522.0
+      ],
+      "womens_email": [
+        22.0,
+        2588.0
+      ],
+      "no_email": [
+        5.0,
+        2494.0
+      ]
+    },
+    "old:mens": {
+      "mens_email": [
+        24.0,
+        2447.0
+      ],
+      "womens_email": [
+        12.0,
+        2508.0
+      ],
+      "no_email": [
+        11.0,
+        2555.0
+      ]
+    },
+    "middle:mens": {
+      "mens_email": [
+        15.0,
+        1244.0
+      ],
+      "womens_email": [
+        11.0,
+        1265.0
+      ],
+      "no_email": [
+        4.0,
+        1318.0
+      ]
+    },
+    "middle:womens": {
+      "mens_email": [
+        12.0,
+        1250.0
+      ],
+      "womens_email": [
+        14.0,
+        1250.0
+      ],
+      "no_email": [
+        5.0,
+        1302.0
+      ]
+    },
+    "recent:womens": {
+      "mens_email": [
+        25.0,
+        1880.0
+      ],
+      "womens_email": [
+        26.0,
+        1956.0
+      ],
+      "no_email": [
+        19.0,
+        1898.0
+      ]
+    },
+    "old:mixed": {
+      "mens_email": [
+        5.0,
+        410.0
+      ],
+      "womens_email": [
+        6.0,
+        382.0
+      ],
+      "no_email": [
+        3.0,
+        369.0
+      ]
+    },
+    "recent:mixed": {
+      "mens_email": [
+        18.0,
+        595.0
+      ],
+      "womens_email": [
+        11.0,
+        590.0
+      ],
+      "no_email": [
+        7.0,
+        622.0
+      ]
+    },
+    "middle:mixed": {
+      "mens_email": [
+        10.0,
+        305.0
+      ],
+      "womens_email": [
+        3.0,
+        283.0
+      ],
+      "no_email": [
+        2.0,
+        297.0
+      ]
+    }
+  }
+}

@@ -1,0 +1,49 @@
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.ipynb_checkpoints/
+.env
+.env.*
+!.env.example
+.mypy_cache/
+
+# Data downloaded or generated locally
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+state/*
+!state/.gitkeep
+logs/*
+!logs/.gitkeep
+artifacts/*
+!artifacts/.gitkeep
+mlruns/
+mlartifacts/
+*.db
+*.db-wal
+*.db-shm
+
+# Local observability volumes
+monitoring/prometheus/data/
+monitoring/grafana/data/
+
+# Local presentation material and large media
+.local/
+*.mp4
+*.mov
+*.mkv
+*.webm
+*.wav
+*.zip
+
+# Course material and personal notes in the workspace
+*.pdf
+!README.pdf
+Documentação oficial/
+tmp/

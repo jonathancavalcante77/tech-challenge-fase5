@@ -1,0 +1,58 @@
+services:
+  api:
+    build: .
+    environment:
+      APP_ENV: local
+      POLICY_MODE: mutable
+      STATE_PATH: /app/state/policy.json
+      DATABASE_PATH: /app/state/decisions.db
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+    ports:
+      - "8080:8080"
+    volumes:
+      - api_state:/app/state
+    depends_on:
+      mlflow:
+        condition: service_started
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "from urllib.request import urlopen; urlopen('http://127.0.0.1:8080/health', timeout=3)"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.17.2
+    command: >-
+      mlflow server --host 0.0.0.0 --port 5000
+      --backend-store-uri sqlite:///mlruns/mlflow.db
+      --default-artifact-root /mlruns/artifacts
+      --allowed-hosts '*'
+    ports:
+      - "5000:5000"
+    volumes:
+      - mlflow_data:/mlruns
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    profiles: ["monitoring"]
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+
+  grafana:
+    image: grafana/grafana:11.3.1
+    profiles: ["monitoring"]
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+
+volumes:
+  api_state:
+  mlflow_data:
+  prometheus_data:
+  grafana_data:
