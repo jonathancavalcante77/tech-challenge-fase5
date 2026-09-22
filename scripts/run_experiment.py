@@ -63,6 +63,8 @@ def run(data_path: Path, output_path: Path, seed: int) -> dict[str, object]:
         "validation_thompson_matched_rows": validation_matched,
         "selected_policy": selected_policy,
         "selected_policy_value_ips": selected_value,
+        "selected_lift_vs_baseline": selected_value - baseline_value,
+        "selected_lift_vs_best_fixed": selected_value - best_fixed_value,
         "thompson_replay_value_ips": replay.estimated_value,
         "thompson_frozen_value_ips": frozen_values,
         "thompson_replay_matched_rows": replay.matched_rows,

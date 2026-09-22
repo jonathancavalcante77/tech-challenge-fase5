@@ -37,6 +37,8 @@ def main() -> None:
                 "thompson_replay_value_ips": summary["thompson_replay_value_ips"],
                 "thompson_frozen_value_ips": summary["thompson_frozen_value_ips"],
                 "lift_replay": summary["lift_replay"],
+                "selected_lift_vs_baseline": summary["selected_lift_vs_baseline"],
+                "selected_lift_vs_best_fixed": summary["selected_lift_vs_best_fixed"],
                 "exploration_rate": summary["thompson_exploration_rate"],
             }
         )
