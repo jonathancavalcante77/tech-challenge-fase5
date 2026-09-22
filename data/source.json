@@ -1,0 +1,17 @@
+{
+  "dataset": "Kevin Hillstrom MineThatData E-Mail Analytics",
+  "kaggle_url": "https://www.kaggle.com/datasets/bofulee/kevin-hillstrom-minethatdata-e-mailanalytics/data",
+  "kaggle_version": 1,
+  "license_as_listed_by_uploader": "Apache 2.0",
+  "original_reference": "https://blog.minethatdata.com/2008/03/minethatdata-e-mail-analytics-and-data.html",
+  "download_url": "http://www.minethatdata.com/Kevin_Hillstrom_MineThatData_E-MailAnalytics_DataMiningChallenge_2008.03.20.csv",
+  "sha256": "0e5893329d8b93cefecc571777672028290ab69865718020c78c7284f291aece",
+  "target": "conversion",
+  "actions": ["mens_email", "womens_email", "no_email"],
+  "limitations": [
+    "Benchmark de campanhas de varejo, não dados bancários.",
+    "Atribuição randomizada próxima de um terço por ação.",
+    "Perfis anonimizados podem ter os mesmos valores.",
+    "Não há contrafactuais individuais para as ações não observadas."
+  ]
+}

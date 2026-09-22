@@ -20,7 +20,7 @@ O benchmark é o Hillstrom MineThatData E-Mail Analytics Challenge. O experiment
 
 ## Dados e limites
 
-Fonte: [Hillstrom no Kaggle](https://www.kaggle.com/datasets/bofulee/kevin-hillstrom-minethatdata-e-mailanalytics/data). Referência original: [MineThatData](https://blog.minethatdata.com/2008/03/minethatdata-e-mail-analytics-and-data.html). O módulo de dados também baixa a cópia pública pela URL original.
+Fonte: [Hillstrom no Kaggle](https://www.kaggle.com/datasets/bofulee/kevin-hillstrom-minethatdata-e-mailanalytics/data), versão 1, com licença Apache 2.0 conforme listada pelo uploader. Referência original: [MineThatData](https://blog.minethatdata.com/2008/03/minethatdata-e-mail-analytics-and-data.html). O módulo de dados também baixa a cópia pública pela URL original. Fonte, checksum, target, ações e limitações estão em `data/source.json`.
 
 O CSV possui 64.000 registros e as colunas `recency`, `history_segment`, `history`, `mens`, `womens`, `zip_code`, `newbie`, `channel`, `segment`, `visit`, `conversion` e `spend`. `segment` é a ação sorteada e não entra no contexto. Usamos apenas informações disponíveis antes da campanha. Não há identificadores pessoais nem atributos financeiros de produção. Perfis anonimizados podem ter os mesmos valores; essas linhas são mantidas porque podem representar clientes diferentes.
 
