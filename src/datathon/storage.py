@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import sqlite3
+from collections.abc import Iterator
+from contextlib import contextmanager
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -15,12 +17,18 @@ class DecisionStore:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self._initialize()
 
-    def _connect(self) -> sqlite3.Connection:
+    @contextmanager
+    def _connect(self) -> Iterator[sqlite3.Connection]:
         connection = sqlite3.connect(self.path, timeout=30)
-        connection.row_factory = sqlite3.Row
-        connection.execute("PRAGMA busy_timeout = 30000")
-        connection.execute("PRAGMA journal_mode = WAL")
-        return connection
+        try:
+            connection.row_factory = sqlite3.Row
+            connection.execute("PRAGMA busy_timeout = 30000")
+            connection.execute("PRAGMA journal_mode = WAL")
+            with connection:
+                yield connection
+        finally:
+            # O contexto nativo controla a transação, mas não fecha a conexão.
+            connection.close()
 
     def _initialize(self) -> None:
         with self._connect() as connection:

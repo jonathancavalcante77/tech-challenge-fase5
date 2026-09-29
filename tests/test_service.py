@@ -1,5 +1,6 @@
 from concurrent.futures import ThreadPoolExecutor
 
+from datathon.policies import ThompsonSamplingPolicy
 from datathon.service import RecommendationService
 
 
@@ -36,3 +37,20 @@ def test_sqlite_state_recovers_when_json_mirror_is_missing(tmp_path, snapshot_pa
 
     restored = RecommendationService(state_path, snapshot_path, database_path, "mutable")
     assert restored.policy.posterior() == learned_state
+
+
+def test_readonly_uses_snapshot_even_when_mutable_state_exists(tmp_path, snapshot_path, context):
+    state_path = tmp_path / "policy.json"
+    database_path = tmp_path / "decisions.db"
+    mutable = RecommendationService(state_path, snapshot_path, database_path, "mutable")
+    decision = mutable.recommend(context)
+    mutable.feedback(decision["decision_id"], 1)
+    state_before = state_path.read_bytes()
+
+    readonly = RecommendationService(state_path, snapshot_path, database_path, "readonly")
+
+    assert readonly.policy.posterior() == ThompsonSamplingPolicy.load(snapshot_path).posterior()
+    assert readonly.policy.posterior() != mutable.policy.posterior()
+    readonly.recommend(context)
+    assert state_path.read_bytes() == state_before
+    assert readonly.store.stats() == {"decisions": 1, "feedbacks": 1}

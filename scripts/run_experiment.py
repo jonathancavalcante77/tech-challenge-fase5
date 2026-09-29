@@ -13,17 +13,7 @@ from datathon.evaluation import (
     policy_value,
     sequential_replay,
 )
-from datathon.features import FEATURE_COLUMNS
-from datathon.policies import ThompsonSamplingPolicy
-
-
-def fit_policy(policy: ThompsonSamplingPolicy, frame) -> None:
-    """Inicializa a política com os resultados observados no treino."""
-
-    for row in frame.itertuples(index=False):
-        values = row._asdict()
-        context = {column: values[column] for column in FEATURE_COLUMNS}
-        policy.update(context, values["action"], int(values["conversion"]))
+from datathon.policies import ThompsonSamplingPolicy, fit_policy
 
 
 def run(data_path: Path, output_path: Path, seed: int) -> dict[str, object]:
@@ -36,12 +26,6 @@ def run(data_path: Path, output_path: Path, seed: int) -> dict[str, object]:
         train.groupby("action")["conversion"].mean().sort_values(ascending=False).index[0]
     )
     baseline_action = "no_email"
-    baseline_value = fixed_policy_value(test, baseline_action)
-    best_fixed_value = fixed_policy_value(test, best_fixed_action)
-    bandit = ThompsonSamplingPolicy(seed=seed)
-    fit_policy(bandit, train)
-    replay = sequential_replay(test, bandit)
-
     validation_bandit = ThompsonSamplingPolicy(seed=seed)
     fit_policy(validation_bandit, train)
     validation_baseline = fixed_policy_value(validation, baseline_action)
@@ -51,6 +35,13 @@ def run(data_path: Path, output_path: Path, seed: int) -> dict[str, object]:
         if validation_replay.estimated_value >= validation_baseline
         else "baseline_no_email"
     )
+
+    baseline_value = fixed_policy_value(test, baseline_action)
+    best_fixed_value = fixed_policy_value(test, best_fixed_action)
+    bandit = ThompsonSamplingPolicy(seed=seed)
+    fit_policy(bandit, train)
+    training_fingerprint = bandit.training_fingerprint()
+    replay = sequential_replay(test, bandit)
 
     frozen = ThompsonSamplingPolicy(seed=seed)
     fit_policy(frozen, train)
@@ -66,6 +57,11 @@ def run(data_path: Path, output_path: Path, seed: int) -> dict[str, object]:
         test, best_fixed_action
     )
     summary = {
+        "evaluation_protocol": "stratified-shuffled-replay-v2",
+        "training_state_sha256": training_fingerprint,
+        "logging_propensity": 1 / 3,
+        "prior_alpha": bandit.prior_alpha,
+        "prior_beta": bandit.prior_beta,
         "dataset_sha256": sha256(data_path),
         "seed": seed,
         "rows": {

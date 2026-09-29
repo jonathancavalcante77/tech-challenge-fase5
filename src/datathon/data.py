@@ -9,6 +9,7 @@ import tempfile
 from pathlib import Path
 from urllib.request import urlretrieve
 
+import numpy as np
 import pandas as pd
 
 from datathon.catalog import DATASET_TO_ACTION
@@ -94,18 +95,41 @@ def load_raw(path: Path) -> pd.DataFrame:
 
 
 def clean_data(frame: pd.DataFrame) -> pd.DataFrame:
-    """Remove duplicatas e garante tipos e domínios válidos sem vazamento."""
+    """Preserva observações e valida tipos e domínios antes da modelagem."""
 
     # Features anonimizadas podem coincidir em clientes diferentes; a ausência
     # de identificador não autoriza remover observações com o mesmo perfil.
+    missing = REQUIRED_COLUMNS.difference(frame.columns)
+    if missing:
+        raise ValueError(f"Colunas obrigatórias ausentes: {sorted(missing)}")
     clean = frame.copy().reset_index(drop=True)
     numeric = ["recency", "history", "mens", "womens", "newbie", "visit", "conversion", "spend"]
     for column in numeric:
         clean[column] = pd.to_numeric(clean[column], errors="raise")
-    if not clean["conversion"].isin([0, 1]).all():
-        raise ValueError("conversion precisa ser binária.")
+        if not np.isfinite(clean[column]).all():
+            raise ValueError(f"{column} precisa conter somente valores finitos e não nulos.")
+    if not clean["recency"].isin(range(1, 13)).all():
+        raise ValueError("recency precisa ser um número inteiro entre 1 e 12.")
+    for column in ("history", "spend"):
+        if (clean[column] < 0).any():
+            raise ValueError(f"{column} não pode conter valores negativos.")
+    for column in ("mens", "womens", "newbie", "visit", "conversion"):
+        if not clean[column].isin([0, 1]).all():
+            raise ValueError(f"{column} precisa ser binária.")
+        clean[column] = clean[column].astype(int)
+    domains = {
+        "zip_code": {"Rural", "Surburban", "Urban"},
+        "channel": {"Phone", "Web", "Multichannel"},
+        "segment": set(DATASET_TO_ACTION),
+    }
+    for column, accepted in domains.items():
+        if not clean[column].isin(accepted).all():
+            raise ValueError(f"{column} contém valores fora do domínio esperado.")
+    if clean["history_segment"].isna().any():
+        raise ValueError("history_segment não pode conter valores nulos.")
     if (clean["conversion"] > clean["visit"]).any():
         raise ValueError("conversion não pode ocorrer sem visit.")
+    clean["recency"] = clean["recency"].astype(int)
     clean["action"] = clean["segment"].map(DATASET_TO_ACTION)
     clean["action_index"] = clean["action"].map(
         {key: i for i, key in enumerate(DATASET_TO_ACTION.values())}
@@ -125,7 +149,7 @@ def stratified_split(
     train_fraction: float = 0.6,
     validation_fraction: float = 0.2,
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    """Separa dados por ação com as mesmas proporções em cada partição."""
+    """Estratifica por ação e mistura a ordem de cada partição para o replay."""
 
     if not 0 < train_fraction < 1 or not 0 < validation_fraction < 1:
         raise ValueError("As frações precisam estar entre zero e um.")
@@ -143,4 +167,11 @@ def stratified_split(
                 shuffled.iloc[validation_end:],
             )
         )
-    return tuple(pd.concat(parts, ignore_index=True) for parts in zip(*pieces, strict=True))  # type: ignore[return-value]
+    # O replay atualiza a política durante a avaliação; blocos ordenados pela
+    # ação histórica criariam uma sequência artificial de exposição.
+    return tuple(
+        pd.concat(parts, ignore_index=True)
+        .sample(frac=1, random_state=seed + partition_index)
+        .reset_index(drop=True)
+        for partition_index, parts in enumerate(zip(*pieces, strict=True))
+    )  # type: ignore[return-value]

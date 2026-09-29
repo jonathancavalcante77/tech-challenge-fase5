@@ -20,8 +20,23 @@
       "womens_email": 0.0078003120124804995,
       "no_email": 0.010582010582010581
     },
+    "sampled_values": {
+      "mens_email": 0.012330543498356925,
+      "womens_email": 0.009024882670094837,
+      "no_email": 0.009639800173179043
+    },
+    "expected_segment": "recent:mens",
+    "checks": {
+      "catalog_action": true,
+      "expected_segment": true,
+      "trained_segment": true,
+      "valid_posterior_means": true,
+      "valid_samples": true,
+      "sampling_consistency": true,
+      "exploration_consistency": true
+    },
     "decision_makes_sense": true,
-    "rationale": "A decisão é coerente como aproveitamento: a ação escolhida também possui a maior média posterior neste segmento. A evidência vem do experimento randomizado do benchmark e não substitui validação própria ou revisão humana em um produto financeiro."
+    "rationale": "Compra recente na categoria masculina; comparar as campanhas nesse segmento, sem inferir gênero. A decisão é coerente como aproveitamento: a ação escolhida também possui a maior média posterior neste segmento. A evidência vem do experimento randomizado do benchmark e não substitui validação própria ou revisão humana em um produto financeiro."
   },
   {
     "case_id": "recent_womens_multichannel",
@@ -44,8 +59,23 @@
       "womens_email": 0.013118062563067608,
       "no_email": 0.0099113197704747
     },
+    "sampled_values": {
+      "mens_email": 0.012741770220237446,
+      "womens_email": 0.011996001255969007,
+      "no_email": 0.008759157779703916
+    },
+    "expected_segment": "recent:womens",
+    "checks": {
+      "catalog_action": true,
+      "expected_segment": true,
+      "trained_segment": true,
+      "valid_posterior_means": true,
+      "valid_samples": true,
+      "sampling_consistency": true,
+      "exploration_consistency": true
+    },
     "decision_makes_sense": true,
-    "rationale": "A decisão é coerente como aproveitamento: a ação escolhida também possui a maior média posterior neste segmento. A evidência vem do experimento randomizado do benchmark e não substitui validação própria ou revisão humana em um produto financeiro."
+    "rationale": "Afinidade feminina recente não obriga campanha feminina; a resposta experimental e sua incerteza orientam a escolha. A decisão é coerente como aproveitamento: a ação escolhida também possui a maior média posterior neste segmento. A evidência vem do experimento randomizado do benchmark e não substitui validação própria ou revisão humana em um produto financeiro."
   },
   {
     "case_id": "middle_mixed_web",
@@ -68,8 +98,23 @@
       "womens_email": 0.01048951048951049,
       "no_email": 0.006688963210702341
     },
+    "sampled_values": {
+      "mens_email": 0.03880042053348962,
+      "womens_email": 0.00423381854547649,
+      "no_email": 0.0034881760486939095
+    },
+    "expected_segment": "middle:mixed",
+    "checks": {
+      "catalog_action": true,
+      "expected_segment": true,
+      "trained_segment": true,
+      "valid_posterior_means": true,
+      "valid_samples": true,
+      "sampling_consistency": true,
+      "exploration_consistency": true
+    },
     "decision_makes_sense": true,
-    "rationale": "A decisão é coerente como aproveitamento: a ação escolhida também possui a maior média posterior neste segmento. A evidência vem do experimento randomizado do benchmark e não substitui validação própria ou revisão humana em um produto financeiro."
+    "rationale": "Compras nas duas categorias e recência intermediária exigem o segmento misto, sem escolher por um rótulo demográfico. A decisão é coerente como aproveitamento: a ação escolhida também possui a maior média posterior neste segmento. A evidência vem do experimento randomizado do benchmark e não substitui validação própria ou revisão humana em um produto financeiro."
   },
   {
     "case_id": "old_mens_phone",
@@ -92,8 +137,23 @@
       "womens_email": 0.004761904761904762,
       "no_email": 0.004286827747466875
     },
+    "sampled_values": {
+      "mens_email": 0.008036547914390995,
+      "womens_email": 0.005326598155505148,
+      "no_email": 0.0031587019753980907
+    },
+    "expected_segment": "old:mens",
+    "checks": {
+      "catalog_action": true,
+      "expected_segment": true,
+      "trained_segment": true,
+      "valid_posterior_means": true,
+      "valid_samples": true,
+      "sampling_consistency": true,
+      "exploration_consistency": true
+    },
     "decision_makes_sense": true,
-    "rationale": "A decisão é coerente como aproveitamento: a ação escolhida também possui a maior média posterior neste segmento. A evidência vem do experimento randomizado do benchmark e não substitui validação própria ou revisão humana em um produto financeiro."
+    "rationale": "Recência antiga deve usar o segmento antigo; o canal Phone é histórico e não altera a campanha de e-mail avaliada. A decisão é coerente como aproveitamento: a ação escolhida também possui a maior média posterior neste segmento. A evidência vem do experimento randomizado do benchmark e não substitui validação própria ou revisão humana em um produto financeiro."
   },
   {
     "case_id": "old_womens_web",
@@ -116,7 +176,22 @@
       "womens_email": 0.00842911877394636,
       "no_email": 0.0020008003201280513
     },
+    "sampled_values": {
+      "mens_email": 0.01603329738805548,
+      "womens_email": 0.006910415241619089,
+      "no_email": 0.002864902166684935
+    },
+    "expected_segment": "old:womens",
+    "checks": {
+      "catalog_action": true,
+      "expected_segment": true,
+      "trained_segment": true,
+      "valid_posterior_means": true,
+      "valid_samples": true,
+      "sampling_consistency": true,
+      "exploration_consistency": true
+    },
     "decision_makes_sense": true,
-    "rationale": "A decisão é coerente como aproveitamento: a ação escolhida também possui a maior média posterior neste segmento. A evidência vem do experimento randomizado do benchmark e não substitui validação própria ou revisão humana em um produto financeiro."
+    "rationale": "Histórico feminino antigo não impõe gênero nem elegibilidade; qualquer ação do catálogo precisa respeitar a amostragem. A decisão é coerente como aproveitamento: a ação escolhida também possui a maior média posterior neste segmento. A evidência vem do experimento randomizado do benchmark e não substitui validação própria ou revisão humana em um produto financeiro."
   }
 ]

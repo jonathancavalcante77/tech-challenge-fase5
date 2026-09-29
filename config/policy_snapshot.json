@@ -1,51 +1,9 @@
 {
-  "version": "ts-contextual-v1-snapshot",
+  "version": "ts-contextual-v2-snapshot",
   "seed": 2026,
   "prior_alpha": 1.0,
   "prior_beta": 1.0,
   "posterior": {
-    "recent:mens": {
-      "mens_email": [
-        28.0,
-        1982.0
-      ],
-      "womens_email": [
-        15.0,
-        1908.0
-      ],
-      "no_email": [
-        20.0,
-        1870.0
-      ]
-    },
-    "old:womens": {
-      "mens_email": [
-        30.0,
-        2522.0
-      ],
-      "womens_email": [
-        22.0,
-        2588.0
-      ],
-      "no_email": [
-        5.0,
-        2494.0
-      ]
-    },
-    "old:mens": {
-      "mens_email": [
-        24.0,
-        2447.0
-      ],
-      "womens_email": [
-        12.0,
-        2508.0
-      ],
-      "no_email": [
-        11.0,
-        2555.0
-      ]
-    },
     "middle:mens": {
       "mens_email": [
         15.0,
@@ -58,20 +16,6 @@
       "no_email": [
         4.0,
         1318.0
-      ]
-    },
-    "middle:womens": {
-      "mens_email": [
-        12.0,
-        1250.0
-      ],
-      "womens_email": [
-        14.0,
-        1250.0
-      ],
-      "no_email": [
-        5.0,
-        1302.0
       ]
     },
     "recent:womens": {
@@ -88,18 +32,32 @@
         1898.0
       ]
     },
-    "old:mixed": {
+    "middle:womens": {
       "mens_email": [
-        5.0,
-        410.0
+        12.0,
+        1250.0
       ],
       "womens_email": [
-        6.0,
-        382.0
+        14.0,
+        1250.0
       ],
       "no_email": [
-        3.0,
-        369.0
+        5.0,
+        1302.0
+      ]
+    },
+    "old:womens": {
+      "mens_email": [
+        30.0,
+        2522.0
+      ],
+      "womens_email": [
+        22.0,
+        2588.0
+      ],
+      "no_email": [
+        5.0,
+        2494.0
       ]
     },
     "recent:mixed": {
@@ -116,6 +74,48 @@
         622.0
       ]
     },
+    "recent:mens": {
+      "mens_email": [
+        28.0,
+        1982.0
+      ],
+      "womens_email": [
+        15.0,
+        1908.0
+      ],
+      "no_email": [
+        20.0,
+        1870.0
+      ]
+    },
+    "old:mens": {
+      "mens_email": [
+        24.0,
+        2447.0
+      ],
+      "womens_email": [
+        12.0,
+        2508.0
+      ],
+      "no_email": [
+        11.0,
+        2555.0
+      ]
+    },
+    "old:mixed": {
+      "mens_email": [
+        5.0,
+        410.0
+      ],
+      "womens_email": [
+        6.0,
+        382.0
+      ],
+      "no_email": [
+        3.0,
+        369.0
+      ]
+    },
     "middle:mixed": {
       "mens_email": [
         10.0,
@@ -130,5 +130,11 @@
         297.0
       ]
     }
+  },
+  "provenance": {
+    "dataset_sha256": "0e5893329d8b93cefecc571777672028290ab69865718020c78c7284f291aece",
+    "evaluation_protocol": "stratified-shuffled-replay-v2",
+    "training_state_sha256": "4e1065316c40900eac36c8c98106a2ee098ed3b26a5191bd39ee29610fc32943",
+    "seed": 2026
   }
 }

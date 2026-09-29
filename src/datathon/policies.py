@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import tempfile
@@ -10,9 +11,10 @@ from pathlib import Path
 from typing import Protocol
 
 import numpy as np
+import pandas as pd
 
 from datathon.catalog import ACTION_KEYS
-from datathon.features import segment_key
+from datathon.features import FEATURE_COLUMNS, segment_key
 
 
 @dataclass(frozen=True)
@@ -85,6 +87,7 @@ class ThompsonSamplingPolicy:
         self.version = version
         self._rng = np.random.default_rng(seed)
         self._state: dict[str, dict[str, list[float]]] = {}
+        self.provenance: dict[str, object] = {}
 
     def _segment_state(self, segment: str) -> dict[str, list[float]]:
         return self._state.setdefault(
@@ -139,7 +142,20 @@ class ThompsonSamplingPolicy:
             "prior_alpha": self.prior_alpha,
             "prior_beta": self.prior_beta,
             "posterior": self.posterior(),
+            "provenance": self.provenance.copy(),
         }
+
+    def training_fingerprint(self) -> str:
+        """Identifica parâmetros e posterior, independentemente do caminho do artefato."""
+
+        payload = {
+            "seed": self.seed,
+            "prior_alpha": self.prior_alpha,
+            "prior_beta": self.prior_beta,
+            "posterior": self.posterior(),
+        }
+        content = json.dumps(payload, sort_keys=True, separators=(",", ":"))
+        return hashlib.sha256(content.encode("utf-8")).hexdigest()
 
     def to_json(self) -> str:
         """Serializa o estado usado pelo arquivo e pelo SQLite."""
@@ -187,6 +203,7 @@ class ThompsonSamplingPolicy:
             }
             for segment, actions in payload.get("posterior", {}).items()
         }
+        policy.provenance = dict(payload.get("provenance", {}))
         return policy
 
     def summary(self) -> list[dict[str, object]]:
@@ -205,6 +222,15 @@ class ThompsonSamplingPolicy:
                     }
                 )
         return rows
+
+
+def fit_policy(policy: ThompsonSamplingPolicy, frame: pd.DataFrame) -> None:
+    """Inicializa a política com os resultados observados exclusivamente no treino."""
+
+    for row in frame.itertuples(index=False):
+        values = row._asdict()
+        context = {column: values[column] for column in FEATURE_COLUMNS}
+        policy.update(context, values["action"], int(values["conversion"]))
 
 
 def load_trained_policy(state_path: Path, snapshot_path: Path) -> ThompsonSamplingPolicy:

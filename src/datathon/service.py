@@ -10,11 +10,15 @@ from dataclasses import asdict
 from pathlib import Path
 
 from datathon.config import PolicyMode
-from datathon.features import context_from_mapping
+from datathon.features import context_from_mapping, segment_key
 from datathon.policies import ThompsonSamplingPolicy, load_trained_policy
 from datathon.storage import DecisionStore
 
 LOGGER = logging.getLogger(__name__)
+
+
+class UnsupportedContextError(ValueError):
+    """Contexto sem evidência disponível na política servida."""
 
 
 class RecommendationService:
@@ -34,7 +38,9 @@ class RecommendationService:
         self._lock = threading.RLock()
         self.state_path.parent.mkdir(parents=True, exist_ok=True)
         stored_state = self.store.policy_state() if self.mode is PolicyMode.MUTABLE else None
-        if stored_state is not None:
+        if self.mode is PolicyMode.READONLY:
+            self.policy = ThompsonSamplingPolicy.load(snapshot_path)
+        elif stored_state is not None:
             self.policy = ThompsonSamplingPolicy.from_json(stored_state)
         else:
             self.policy = load_trained_policy(state_path, snapshot_path)
@@ -45,6 +51,11 @@ class RecommendationService:
     def recommend(self, payload: dict[str, object]) -> dict[str, object]:
         with self._lock:
             context = context_from_mapping(payload)
+            if segment_key(context) not in self.policy.posterior():
+                raise UnsupportedContextError(
+                    "Não há dados de treino para este perfil. "
+                    "A recomendação requer histórico em pelo menos uma categoria."
+                )
             decision = self.policy.recommend(context)
             decision_id = str(uuid.uuid4())
             if self.mode is PolicyMode.MUTABLE:
@@ -99,6 +110,7 @@ class RecommendationService:
             "mode": self.mode.value,
             "decision_rule": "thompson_sampling",
             "learning_enabled": self.mode is PolicyMode.MUTABLE,
+            "training_provenance": self.policy.provenance.copy(),
             "state_segments": len(self.policy.posterior()),
             "store": self.store.stats(),
         }

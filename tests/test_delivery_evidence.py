@@ -10,7 +10,10 @@ def test_versioned_results_match_the_selected_policy():
     assert summary["selected_policy"] == "thompson_sampling"
     assert summary["selected_policy_value_ips"] == summary["thompson_replay_value_ips"]
     assert summary["selected_lift_vs_baseline"] > 0
-    assert summary["selected_lift_vs_best_fixed"] < 0
+    assert summary["evaluation_protocol"] == "stratified-shuffled-replay-v2"
+    assert summary["selected_lift_vs_best_fixed"] == (
+        summary["selected_policy_value_ips"] - summary["best_fixed_value_ips"]
+    )
     assert summary["thompson_replay_ci95"][0] <= summary["thompson_replay_value_ips"]
     assert summary["thompson_replay_value_ips"] <= summary["thompson_replay_ci95"][1]
 

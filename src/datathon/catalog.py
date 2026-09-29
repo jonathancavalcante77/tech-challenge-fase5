@@ -15,9 +15,17 @@ class Offer:
 
 
 OFFERS = (
-    Offer("mens_email", "Campanha masculina", "Mensagem com produtos da categoria masculina."),
-    Offer("womens_email", "Campanha feminina", "Mensagem com produtos da categoria feminina."),
-    Offer("no_email", "Sem campanha", "Não enviar comunicação nesta rodada."),
+    Offer(
+        "mens_email",
+        "E-mail da categoria masculina",
+        "Campanha de produtos da categoria masculina.",
+    ),
+    Offer(
+        "womens_email",
+        "E-mail da categoria feminina",
+        "Campanha de produtos da categoria feminina.",
+    ),
+    Offer("no_email", "Sem envio de e-mail", "Nenhuma campanha é enviada nesta rodada."),
 )
 
 ACTION_KEYS = tuple(offer.key for offer in OFFERS)

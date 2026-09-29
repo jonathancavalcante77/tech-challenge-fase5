@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import time
+from typing import Literal
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse, PlainTextResponse
@@ -20,7 +21,16 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from datathon.catalog import catalog_payload
 from datathon.config import Settings
-from datathon.service import RecommendationService
+from datathon.golden import GOLDEN_SET, case_context
+from datathon.service import RecommendationService, UnsupportedContextError
+
+EXAMPLE_LABELS = {
+    "recent_mens_web": "Recente · categoria masculina",
+    "recent_womens_multichannel": "Recente · categoria feminina",
+    "middle_mixed_web": "Intermediário · duas categorias",
+    "old_mens_phone": "Antigo · categoria masculina",
+    "old_womens_web": "Antigo · categoria feminina",
+}
 
 
 class ContextRequest(BaseModel):
@@ -29,12 +39,12 @@ class ContextRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     recency: int = Field(ge=1, le=12)
-    history: float = Field(ge=0)
+    history: float = Field(ge=0, allow_inf_nan=False)
     mens: int = Field(ge=0, le=1)
     womens: int = Field(ge=0, le=1)
     newbie: int = Field(ge=0, le=1)
-    zip_code: str = Field(min_length=1, max_length=20)
-    channel: str = Field(min_length=1, max_length=20)
+    zip_code: Literal["Urban", "Surburban", "Rural"]
+    channel: Literal["Web", "Phone", "Multichannel"]
 
 
 class FeedbackRequest(BaseModel):
@@ -109,8 +119,18 @@ def create_app() -> FastAPI:
 
     @application.get("/", response_class=HTMLResponse, include_in_schema=False)
     async def home(request: Request) -> HTMLResponse:
+        examples = [
+            {
+                "id": case["case_id"],
+                "label": EXAMPLE_LABELS[case["case_id"]],
+                "context": case_context(case),
+            }
+            for case in GOLDEN_SET
+        ]
         return templates.TemplateResponse(
-            request=request, name="index.html", context={"catalog": catalog_payload()}
+            request=request,
+            name="index.html",
+            context={"catalog": catalog_payload(), "examples": examples},
         )
 
     @application.get("/health")
@@ -123,7 +143,10 @@ def create_app() -> FastAPI:
 
     @application.post("/recommend")
     async def recommend(payload: ContextRequest) -> dict[str, object]:
-        result = service.recommend(payload.model_dump())
+        try:
+            result = service.recommend(payload.model_dump())
+        except UnsupportedContextError as error:
+            raise HTTPException(status_code=422, detail=str(error)) from error
         decisions.labels(str(result["action"]), str(bool(result["exploration"])).lower()).inc()
         posterior_segments.set(len(service.policy.posterior()))
         return result

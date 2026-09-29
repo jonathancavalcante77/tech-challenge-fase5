@@ -5,14 +5,38 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 .coverage
+.coverage.*
+coverage.xml
 htmlcov/
 .ipynb_checkpoints/
 .env
 .env.*
 !.env.example
 .mypy_cache/
+.tox/
+.nox/
+.hypothesis/
+build/
+dist/
+
+# Credenciais locais e chaves privadas
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+application_default_credentials.json
+service-account*.json
+service_account*.json
 
 # Data downloaded or generated locally
+*.csv
+*.parquet
+*.feather
+*.pkl
+*.joblib
+*.npy
+*.npz
 data/raw/*
 !data/raw/.gitkeep
 data/processed/*
@@ -26,12 +50,20 @@ artifacts/*
 !artifacts/experiment_summary.json
 !artifacts/golden_set.json
 !artifacts/figures/
+artifacts/figures/*
 !artifacts/figures/*.png
 mlruns/
 mlartifacts/
 *.db
 *.db-wal
 *.db-shm
+*.sqlite
+*.sqlite3
+*.sqlite-wal
+*.sqlite-shm
+*.sqlite3-wal
+*.sqlite3-shm
+*.log
 
 # Local observability volumes
 monitoring/prometheus/data/
@@ -39,18 +71,37 @@ monitoring/grafana/data/
 
 # Local presentation material and large media
 .local/
+.playwright-cli/
+video.txt
 *.mp4
 *.mov
 *.mkv
 *.webm
 *.wav
 *.zip
+*.7z
+*.rar
+*.tar
+*.gz
+*.mp3
+*.avi
+*.m4v
+*.mpeg
 
 # Course material and personal notes in the workspace
 *.pdf
-!README.pdf
 Documentação oficial/
 tmp/
 
 # Additional course material
 aula-datathon/
+Aulas/
+
+# Arquivos temporários de editores e do sistema operacional
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+*.bak
+*~

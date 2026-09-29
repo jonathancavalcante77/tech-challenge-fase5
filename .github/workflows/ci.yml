@@ -13,6 +13,8 @@ jobs:
         with:
           python-version: "3.12"
       - run: python -m pip install --upgrade pip
-      - run: pip install -e ".[dev]"
-      - run: ruff check src app scripts tests
-      - run: pytest --cov=src --cov-report=term-missing
+      - run: python -m pip install -e ".[dev]"
+      - run: python -m ruff check src app scripts tests
+      - run: python -m ruff format --check src app scripts tests
+      - run: python -m pytest --cov=src --cov=app --cov-report=term-missing
+      - run: docker compose --profile monitoring config --quiet

@@ -3,56 +3,183 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Adaptive Offers Lab</title>
-    <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}">
+    <meta name="theme-color" content="#f6f7f8">
+    <title>Laboratório de Ofertas | Datathon MLET</title>
+    <script>
+      (() => {
+        let preference;
+        try { preference = localStorage.getItem('datathon-theme'); } catch {}
+        const systemTheme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        const theme = preference === 'dark' || preference === 'light' ? preference : systemTheme;
+        document.documentElement.dataset.theme = theme;
+        document.querySelector('meta[name="theme-color"]').content = theme === 'dark' ? '#17191e' : '#f6f7f8';
+      })();
+    </script>
+    <link rel="preload" href="{{ url_for('static', path='/fonts/ibm-plex-sans-latin-400-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="{{ url_for('static', path='/fonts/ibm-plex-sans-latin-600-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', path='/favicon.svg') }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}?v=5">
   </head>
   <body>
-    <main class="shell">
-      <header class="hero">
-        <p class="eyebrow">Datathon MLET · Fase 5</p>
-        <h1>Experimentação adaptativa de campanhas</h1>
-        <p class="lead">Uma política contextual equilibra exploração e aproveitamento para escolher a próxima ação.</p>
+    <a class="skip-link" href="#main-content">Ir para o conteúdo</a>
+    <main id="main-content" class="shell">
+      <header class="site-header">
+        <div class="brand">
+          <div>
+            <strong>Laboratório de Ofertas</strong>
+            <span>Datathon MLET · Fase 5</span>
+          </div>
+        </div>
+        <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Ativar tema escuro">
+          <span class="theme-glyph" aria-hidden="true"></span>
+          <span id="theme-toggle-text" aria-hidden="true">Tema escuro</span>
+        </button>
       </header>
 
-      <section class="grid">
-        <article class="card">
-          <h2>Contexto do cliente</h2>
-          <form id="recommendation-form">
-            <label>Meses desde a última compra <input name="recency" type="number" min="1" max="12" value="3" required></label>
-            <label>Histórico anual (US$) <input name="history" type="number" min="0" step="0.01" value="350" required></label>
-            <div class="two-columns">
-              <label>Comprou masculino <select name="mens"><option value="1">Sim</option><option value="0">Não</option></select></label>
-              <label>Comprou feminino <select name="womens"><option value="1">Sim</option><option value="0">Não</option></select></label>
-            </div>
-            <div class="two-columns">
-              <label>Cliente novo <select name="newbie"><option value="0">Não</option><option value="1">Sim</option></select></label>
-              <label>Canal <select name="channel"><option>Web</option><option>Phone</option><option>Multichannel</option></select></label>
-            </div>
-            <label>Região <select name="zip_code"><option>Urban</option><option>Surburban</option><option>Rural</option></select></label>
-            <button type="submit">Gerar recomendação</button>
-          </form>
-        </article>
-
-        <article class="card result-card" aria-live="polite">
-          <p class="eyebrow">Decisão</p>
-          <h2 id="offer-label">Aguardando contexto</h2>
-          <p id="decision-copy">Preencha o contexto para consultar a política.</p>
-          <dl class="facts">
-            <div><dt>Segmento</dt><dd id="segment">—</dd></div>
-            <div><dt>Exploração</dt><dd id="exploration">—</dd></div>
-            <div><dt>Versão</dt><dd id="version">—</dd></div>
-          </dl>
-          <div class="feedback" id="feedback-area" hidden>
-            <p>Resultado observado para esta decisão:</p>
-            <button class="secondary" data-reward="1">Conversão</button>
-            <button class="secondary" data-reward="0">Sem conversão</button>
-          </div>
-          <p class="status" id="status" role="status"></p>
-        </article>
+      <section class="intro" aria-labelledby="page-title">
+        <h1 id="page-title">Simulador de campanhas</h1>
+        <p class="intro-lead">Configure um perfil fictício, examine a recomendação e compare as três ações.</p>
+        <p class="source-note"><strong>Origem dos dados:</strong> benchmark público Hillstrom, de varejo. O cenário financeiro é hipotético e não foi validado com clientes bancários.</p>
       </section>
-      <footer><a href="/docs">Contrato da API</a><span> · </span><a href="/metadata">Metadados</a></footer>
+
+      <div class="workbench">
+        <section class="profile-panel" aria-labelledby="profile-title">
+          <div class="section-title">
+            <div>
+              <h2 id="profile-title">Perfil do cliente</h2>
+              <p>As compras anteriores formam o contexto da escolha.</p>
+            </div>
+          </div>
+
+          <details class="example-picker">
+            <summary>Usar um perfil de referência</summary>
+            <div class="example-list">
+              {% for example in examples %}
+              <button type="button" class="example-button" data-example="{{ example.id }}" aria-pressed="false">{{ example.label }}</button>
+              {% endfor %}
+            </div>
+          </details>
+
+          <form id="recommendation-form" autocomplete="off">
+            <label class="field" for="recency">
+              <span>Meses desde a última compra</span>
+              <span class="number-control">
+                <input id="recency" name="recency" type="number" inputmode="numeric" min="1" max="12" value="3" required>
+                <span aria-hidden="true">meses</span>
+              </span>
+            </label>
+
+            <fieldset class="category-fields" aria-describedby="category-help category-error">
+              <legend>Comprou produtos de quais categorias?</legend>
+              <p id="category-help">São categorias de produtos, não o gênero da pessoa. Marque pelo menos uma.</p>
+              <div class="category-options">
+                <label class="category-option" for="mens">
+                  <input id="mens" name="mens" type="checkbox" value="1" checked>
+                  <span>Categoria masculina</span>
+                </label>
+                <label class="category-option" for="womens">
+                  <input id="womens" name="womens" type="checkbox" value="1">
+                  <span>Categoria feminina</span>
+                </label>
+              </div>
+              <p id="category-error" class="field-error" role="alert" hidden>Marque pelo menos uma categoria para gerar a recomendação.</p>
+            </fieldset>
+
+            <details class="additional-data">
+              <summary>Outros dados do perfil <span>Não entram na escolha atual</span></summary>
+              <div class="additional-content">
+                <p>Estes dados ficam registrados com a decisão. Apenas a recência e as categorias acima definem o grupo usado pelo modelo.</p>
+                <label class="field" for="history"><span>Compras anteriores (US$)</span>
+                  <input id="history" name="history" type="number" min="0" step="0.01" value="350" required>
+                </label>
+                <div class="field-grid">
+                  <label class="field" for="newbie"><span>Cliente novo</span>
+                    <select id="newbie" name="newbie"><option value="0">Não</option><option value="1">Sim</option></select>
+                  </label>
+                  <label class="field" for="channel"><span>Canal histórico</span>
+                    <select id="channel" name="channel"><option value="Web">Site</option><option value="Phone">Telefone</option><option value="Multichannel">Multicanal</option></select>
+                  </label>
+                </div>
+                <label class="field" for="zip_code"><span>Tipo de região</span>
+                  <select id="zip_code" name="zip_code"><option value="Urban">Urbana</option><option value="Surburban">Suburbana</option><option value="Rural">Rural</option></select>
+                </label>
+              </div>
+            </details>
+
+            <div class="form-footer">
+              <button id="recommend-button" class="primary-button" type="submit">Gerar recomendação</button>
+              <p id="form-status" class="message" role="status" aria-live="polite"></p>
+            </div>
+          </form>
+        </section>
+
+        <div class="output-column">
+          <section class="analysis-panel" aria-label="Análise da decisão">
+            <div class="section-title">
+              <div><h2>Recomendação</h2><p>A política calcula uma nova escolha a cada rodada.</p></div>
+            </div>
+
+            <div id="empty-state" class="empty-state">
+              <h3>Ainda não há recomendação</h3>
+              <p>Preencha o perfil e gere a recomendação para ver a campanha escolhida e as estimativas das alternativas.</p>
+            </div>
+
+            <div id="decision-content" class="decision-content" hidden>
+              <p class="decision-intro">Campanha indicada</p>
+              <h3 id="offer-label"></h3>
+              <p id="decision-copy" class="decision-copy"></p>
+              <dl class="profile-summary">
+                <dt>Perfil considerado</dt>
+                <dd id="segment-label"></dd>
+              </dl>
+              <div class="reason-block">
+                <h4>Por que essa escolha?</h4>
+                <p id="decision-reason"></p>
+              </div>
+            </div>
+
+            <section id="evidence-panel" class="evidence-panel" aria-labelledby="evidence-title" hidden>
+              <div class="evidence-heading">
+                <div>
+                  <h3 id="evidence-title">Estimativa por campanha</h3>
+                  <p>Média de conversão estimada para este grupo no estado atual da política.</p>
+                </div>
+              </div>
+              <div id="action-comparison" class="action-comparison" role="list"></div>
+              <div class="plot-scale" aria-hidden="true"><span>0%</span><span id="plot-scale-max"></span></div>
+              <p class="method-note">Os pontos usam a mesma escala. Diferenças pequenas podem desaparecer no arredondamento. Uma nova rodada pode escolher outra ação.</p>
+              <details class="technical-details">
+                <summary>Dados técnicos da decisão</summary>
+                <dl>
+                  <div><dt>Segmento interno</dt><dd id="segment-code"></dd></div>
+                  <div><dt>Versão da política</dt><dd id="version-code"></dd></div>
+                  <div><dt>Exploração</dt><dd id="exploration-code"></dd></div>
+                </dl>
+              </details>
+            </section>
+
+            <section id="feedback-panel" class="feedback-panel" aria-labelledby="feedback-title" hidden>
+              <div class="feedback-heading">
+                <div><h3 id="feedback-title">Registre o resultado</h3>
+                  <p id="feedback-intro">Informe a resposta fictícia observada. O modelo usará esse resultado nas próximas escolhas locais.</p>
+                </div>
+              </div>
+              <div id="feedback-controls" class="feedback-controls">
+                <button type="button" class="feedback-button" data-reward="1">Houve compra</button>
+                <button type="button" class="feedback-button quiet" data-reward="0">Não houve compra</button>
+              </div>
+              <p id="feedback-status" class="message" role="status" aria-live="polite"></p>
+            </section>
+          </section>
+        </div>
+      </div>
+
+      <footer class="page-footer">
+        <p>Demonstração acadêmica com perfis fictícios. Nenhuma campanha é enviada e nenhuma decisão financeira é tomada.</p>
+        <nav aria-label="Documentação técnica"><a href="/docs">Documentação da API</a><a href="/metadata">Metadados técnicos</a></nav>
+      </footer>
     </main>
-    <script>window.catalog = {{ catalog | tojson }};</script>
-    <script src="{{ url_for('static', path='/app.js') }}"></script>
+    <script>window.catalog = {{ catalog | tojson }}; window.examples = {{ examples | tojson }};</script>
+    <script src="{{ url_for('static', path='/app.js') }}?v=5"></script>
   </body>
 </html>

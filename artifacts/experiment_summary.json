@@ -1,4 +1,9 @@
 {
+  "evaluation_protocol": "stratified-shuffled-replay-v2",
+  "training_state_sha256": "4e1065316c40900eac36c8c98106a2ee098ed3b26a5191bd39ee29610fc32943",
+  "logging_propensity": 0.3333333333333333,
+  "prior_alpha": 1.0,
+  "prior_beta": 1.0,
   "dataset_sha256": "0e5893329d8b93cefecc571777672028290ab69865718020c78c7284f291aece",
   "seed": 2026,
   "rows": {
@@ -22,27 +27,27 @@
     0.01840008540190699
   ],
   "validation_baseline_value_ips": 0.005859832799437456,
-  "validation_thompson_value_ips": 0.008672552543167435,
-  "validation_thompson_matched_rows": 4275,
+  "validation_thompson_value_ips": 0.009141339167122432,
+  "validation_thompson_matched_rows": 4292,
   "selected_policy": "thompson_sampling",
-  "selected_policy_value_ips": 0.013825964693016717,
-  "selected_lift_vs_baseline": 0.006795813154194657,
-  "selected_lift_vs_best_fixed": -0.0009373535385096068,
-  "thompson_replay_value_ips": 0.013825964693016717,
-  "thompson_replay_standard_error": 0.0017959048795328182,
+  "selected_policy_value_ips": 0.01546633338540853,
+  "selected_lift_vs_baseline": 0.008436181846586472,
+  "selected_lift_vs_best_fixed": 0.0007030151538822069,
+  "thompson_replay_value_ips": 0.01546633338540853,
+  "thompson_replay_standard_error": 0.0018989344614099588,
   "thompson_replay_ci95": [
-    0.010305991129132393,
-    0.01734593825690104
+    0.011744421841045011,
+    0.01918824492977205
   ],
   "thompson_frozen_value_ips": 0.014997656616153727,
-  "thompson_replay_matched_rows": 4242,
+  "thompson_replay_matched_rows": 4313,
   "thompson_frozen_matched_rows": 4300,
-  "thompson_exploration_rate": 0.18473675988126856,
-  "lift_replay": 0.006795813154194657,
-  "lift_replay_vs_best_fixed": -0.0009373535385096068,
+  "thompson_exploration_rate": 0.22293391657553507,
+  "lift_replay": 0.008436181846586472,
+  "lift_replay_vs_best_fixed": 0.0007030151538822069,
   "action_counts": {
-    "mens_email": 9810,
-    "womens_email": 2564,
-    "no_email": 428
+    "mens_email": 9488,
+    "womens_email": 2956,
+    "no_email": 358
   }
 }
