@@ -18,9 +18,9 @@
 
 ## Escopo atual
 
-A prioridade é revisar o projeto no repositório privado `jonathancavalcante77/tech-challenge-fase5`, autorizado em 29/09/2026. Não tornar o repositório público, não preparar roteiro, não gravar vídeo e não criar `video.txt` até nova autorização explícita. A publicação real na GCP também está adiada. Artefatos e scripts locais de Cloud Run devem permanecer prontos.
+A prioridade é revisar o projeto no repositório público `jonathancavalcante77/tech-challenge-fase5`, autorizado em 29/09/2026. A abertura pública foi autorizada explicitamente pelo autor. Não preparar roteiro, não gravar vídeo e não criar `video.txt` até nova autorização explícita. A publicação real na GCP também está adiada. Artefatos e scripts locais de Cloud Run devem permanecer prontos.
 
-A interface de demonstração foi redesenhada em português como ferramenta analítica, com tipografia IBM Plex, temas claro/escuro, formulário centrado nas variáveis da política e comparação das três ações em escala comum. A versão de 29/09/2026 foi inspecionada com Playwright CLI em desktop e celular; as capturas finais estão em `.local/ui-final-*.png`, fora do Git. O QA em Chromium validou os fluxos principais, inclusive erro, feedback e persistência do tema. Perfis sem segmento treinado apagam a decisão anterior e exibem erro. O autor avaliará a cópia privada no GitHub antes de decidir sobre a versão pública.
+A interface de demonstração foi redesenhada em português como ferramenta analítica, com tipografia IBM Plex, temas claro/escuro, formulário centrado nas variáveis da política e comparação das três ações em escala comum. A versão de 29/09/2026 foi inspecionada com Playwright CLI em desktop e celular; as capturas finais estão em `.local/ui-final-*.png`, fora do Git. O QA em Chromium validou os fluxos principais, inclusive erro, feedback e persistência do tema. Perfis sem segmento treinado apagam a decisão anterior e exibem erro. O repositório público está acessível para avaliação do professor; o vídeo permanece pendente.
 
 As melhorias opcionais fazem parte da entrega local: MLflow, Prometheus, Grafana, dashboard, métricas operacionais e script de Cloud Run.
 
@@ -74,7 +74,7 @@ Antes de declarar conclusão, verificar que os dois notebooks têm todas as cél
 
 ## Git e artefatos
 
-- O remote `origin` aponta para o repositório privado de revisão. Não reescrever histórico nem mudar a visibilidade sem autorização.
+- O remote `origin` aponta para o repositório público. Não reescrever histórico nem mudar a visibilidade sem autorização.
 - `video.txt` permanece fora do Git até o vídeo estar gravado e o link ser fornecido pelo autor.
 - Dados brutos, `.venv`, bancos, volumes, estados mutáveis, caches, credenciais, PDFs e vídeos ficam fora do Git.
 - Devem permanecer versionáveis: notebooks executados, `artifacts/experiment_summary.json`, `artifacts/golden_set.json`, figuras, snapshot treinado, código, testes e documentação.

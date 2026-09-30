@@ -26,7 +26,7 @@ O Hillstrom foi escolhido por registrar três ações randomizadas, incluindo o 
 | 7. MLOps | MLflow, Prometheus e Grafana no Docker Compose |
 | 8. Apresentação | etapa externa deliberadamente adiada até a revisão final |
 
-O código está disponível inicialmente no [repositório privado de revisão](https://github.com/jonathancavalcante77/tech-challenge-fase5). A publicação pública e o vídeo ficam para depois da avaliação do autor; `video.txt` ainda não faz parte do projeto.
+O código está disponível no [repositório público](https://github.com/jonathancavalcante77/tech-challenge-fase5). O vídeo será incluído após a gravação; `video.txt` ainda não faz parte do projeto.
 
 ## Dados e qualidade
 
@@ -206,7 +206,7 @@ Limitações principais:
 
 O projeto usa layout `src`, validação Pydantic, estado versionado, checksum, SQLite em WAL, escrita atômica, usuário não privilegiado no container e testes unitários e de integração. A suíte cobre API, políticas, replay, persistência, concorrência, recuperação, checksum, configuração e Golden Set.
 
-A revisão local de 29/09/2026 aprovou 75 testes com 93% de cobertura, além de Ruff, sintaxe JavaScript, validação do Docker Compose e fluxos de interface no Chromium em desktop e celular. A revisão visual usou Playwright CLI, capturas de 1440 e 390 pixels, tema claro e escuro e uma segunda passada para reduzir o peso do título e melhorar contraste e leitura. Uma cópia limpa dos arquivos candidatos, com ambiente Python novo e volumes Docker novos, reproduziu o resumo, o snapshot e o Golden Set e executou os dois notebooks sem erros em 28/09/2026. O código segue para revisão privada no GitHub; a visibilidade pública, a gravação do pitch e a inclusão do link real em `video.txt` ficam para uma etapa posterior.
+A revisão local de 29/09/2026 aprovou 75 testes com 93% de cobertura, além de Ruff, sintaxe JavaScript, validação do Docker Compose e fluxos de interface no Chromium em desktop e celular. A revisão visual usou Playwright CLI, capturas de 1440 e 390 pixels, tema claro e escuro e uma segunda passada para reduzir o peso do título e melhorar contraste e leitura. Uma cópia limpa dos arquivos candidatos, com ambiente Python novo e volumes Docker novos, reproduziu o resumo, o snapshot e o Golden Set e executou os dois notebooks sem erros em 28/09/2026. O código está publicado no GitHub com acesso público. A gravação do pitch e a inclusão do link real em `video.txt` ficam para uma etapa posterior.
 
 ## Conferência com a aula de orientação
 
@@ -223,6 +223,6 @@ A transcrição da aula de 27/07/2026 foi usada para conferir as orientações d
 | [23:33–24:16] Fluxo demonstrável | Interface FastAPI: contexto → recomendação → feedback simulado |
 | [24:33–25:11] Nuvem livre, um ou dois parágrafos | Arquitetura conceitual e script GCP opcional; deploy não exigido |
 | [25:32–26:09] MLflow local com parâmetros e métricas | Registro reproduzível do resumo e histórico de versões |
-| [14:35] Repositório público; [26:09–26:52] vídeo até 5 minutos | Código em revisão privada; abertura pública e vídeo pendentes |
+| [14:35] Repositório público; [26:09–26:52] vídeo até 5 minutos | Repositório público disponível; vídeo pendente |
 
-A parte local atende às evidências descritas nesta conferência. A entrega acadêmica completa ainda depende da abertura pública do repositório e do vídeo com problema, modelo e demonstração. Prometheus, Grafana, Docker e os testes de software são melhorias adicionais; a aula não os torna substitutos dos entregáveis obrigatórios.
+A parte local atende às evidências descritas nesta conferência. A entrega acadêmica completa ainda depende do vídeo com problema, modelo e demonstração. Prometheus, Grafana, Docker e os testes de software são melhorias adicionais; a aula não os torna substitutos dos entregáveis obrigatórios.

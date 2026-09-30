@@ -15,7 +15,7 @@ Entregar uma plataforma robusta de experimentação adaptativa para recomendaç�
 - snapshot treinado como estado inicial obrigatório;
 - MLflow, Prometheus e Grafana entregues localmente;
 - script do Cloud Run pronto, com publicação real adiada;
-- repositório privado no GitHub para revisão do autor; visibilidade pública, vídeo, roteiro e `video.txt` em etapa posterior.
+- repositório público no GitHub; vídeo, roteiro e `video.txt` em etapa posterior.
 
 ## Estado local
 
@@ -32,7 +32,7 @@ Entregar uma plataforma robusta de experimentação adaptativa para recomendaç�
 | Prometheus e Grafana | Concluída localmente | coleta saudável e dashboard provisionado |
 | Docker | Concluída localmente | build, serviços, modo readonly, reinício e volumes validados |
 | Cloud Run | Artefatos prontos | deploy real adiado |
-| GitHub | Repositório privado de revisão | `jonathancavalcante77/tech-challenge-fase5`; abertura pública posterior |
+| GitHub | Repositório público | `jonathancavalcante77/tech-challenge-fase5`; acesso liberado para avaliação |
 | Vídeo | Pendente | gravação, roteiro e `video.txt` após avaliação do autor |
 
 ## Resultado oficial
@@ -62,7 +62,7 @@ Foram lidos os dois arquivos autorizados: a transcrição da aula de 27/07/2026 
 - MLflow identifica a evidência inteira por hash e admite nova execução quando o experimento muda ou a tentativa anterior falha.
 - Cenário financeiro, recompensa, elegibilidade externa, retenção e descarte documentados; benchmark permanece explicitamente de varejo.
 - A aula confirma que nuvem é conceitual, outra base pode ser justificada e um fluxo FastAPI é suficiente. Não exige migração para Streamlit ou novos serviços GCP.
-- Repositório público e vídeo permanecem necessários para a entrega acadêmica; a cópia privada permite revisar o código antes da abertura pública.
+- O repositório público está disponível. O vídeo permanece necessário para concluir a entrega acadêmica.
 
 ## Validação local registrada
 
@@ -185,8 +185,8 @@ sem treino. O layout também era fraco em desktop e celular.
   de rede;
 - capturas e script de conferência em `.local/`, fora do Git.
 
-O autor ainda avaliará o projeto no repositório privado antes de decidir sobre
-a abertura pública e o vídeo.
+O autor avaliará o projeto no repositório público antes de preparar
+o vídeo.
 
 ## Revisão visual — 29/09/2026
 
@@ -211,7 +211,7 @@ As capturas são material local de revisão e ficam fora do Git.
 ## Publicação para revisão — 29/09/2026
 
 O repositório `jonathancavalcante77/tech-challenge-fase5` foi criado como
-**privado** para a revisão do autor. O `.gitignore` exclui dados brutos,
+**privado** para a revisão do autor e posteriormente tornado público em 29/09/2026, mediante autorização explícita. O `.gitignore` exclui dados brutos,
 processados e formatos comuns de dataset/modelo, ambientes, bancos, estados,
 volumes, credenciais, PDFs, materiais de aula, capturas locais e `video.txt`.
 Notebooks executados, código, testes, resumo, Golden Set, figuras, snapshot e
@@ -223,9 +223,9 @@ ocorrências. Essa verificação não substitui revisão humana do repositório.
 
 ## Etapas posteriores
 
-1. avaliar os arquivos e a apresentação no GitHub privado;
+1. avaliar os arquivos e a apresentação no GitHub público;
 2. ajustar o projeto conforme a revisão;
-3. autorizar a abertura pública quando estiver pronto para a entrega;
+3. conferir o acesso público antes de enviar o link à FIAP;
 4. preparar o roteiro com base no sistema final e gravar o vídeo de até cinco minutos;
 5. publicar o vídeo e adicionar o link real em `video.txt`;
 6. avaliar se a demonstração em Cloud Run acrescenta valor.
